@@ -20,6 +20,7 @@ class TruthOrDare(object):
             '!listar': self.list_players,
             '!lancar': self.throw,
             '!desafio': self.challenge,
+			'!ajuda': self.help,
         }
 
     def play(self, **kwargs):
@@ -64,3 +65,14 @@ class TruthOrDare(object):
 
     def challenge(self, **kwargs):
         self.send_msg(self.group_jid, random.choice(CHALLENGES))
+
+    def help(self, **kwargs):
+        msg = """!jogar -> Para entrar no jogo
+!sair -> Para sair do jogo
+!rodar -> Quem pergunta para quem?
+!listar -> Para listar os jogadores
+!lancar -> A resposta é verdade ou mentira?
+!desafio -> Para escolher um desafio
+!ajuda -> Para informação de ajuda
+                """
+        self.send_msg(self.group_jid, msg)

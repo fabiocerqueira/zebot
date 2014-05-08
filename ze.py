@@ -68,7 +68,9 @@ class ZeClient(object):
             game_group = TruthOrDare(group_jid, send_msg)
             self.groups[group_jid] = game_group
         if message.startswith('!'):
-            self.groups[group_jid].commands[message](push_name=push_name)
+            command = self.groups[group_jid].commands.get(message)
+            if command:
+                command(push_name=push_name)
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (group_jid, message_id))
 
