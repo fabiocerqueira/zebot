@@ -7,9 +7,10 @@ CHALLENGES = [
     'Compartilhe aqui a última conversa com alguém do grupo, a sua escolha!(Print Screen)',
 ]
 
+
 class TruthOrDare(object):
 
-    def __init__(self, group_jid, msg_callback = None):
+    def __init__(self, group_jid, msg_callback):
         self.send_msg = msg_callback
         self.players = []
         self.group_jid = group_jid
@@ -20,7 +21,7 @@ class TruthOrDare(object):
             '!listar': self.list_players,
             '!lancar': self.throw,
             '!desafio': self.challenge,
-			'!ajuda': self.help,
+            '!ajuda': self.help,
         }
 
     def play(self, **kwargs):
@@ -54,14 +55,13 @@ class TruthOrDare(object):
             self.send_msg(self.group_jid, 'Ninguém está jogando.')
         else:
             self.send_msg(self.group_jid,
-                         'No jogo agora: %s' % ','.join(self.players))
+                          'No jogo agora: %s' % ','.join(self.players))
 
     def throw(self, **kwargs):
         msg = "Mentira"
         if random.randrange(100) > 55:
             msg = "Verdade"
         self.send_msg(self.group_jid, msg)
-
 
     def challenge(self, **kwargs):
         self.send_msg(self.group_jid, random.choice(CHALLENGES))

@@ -5,7 +5,6 @@ from Yowsup.connectionmanager import YowsupConnectionManager
 import os
 import time
 import base64
-import random
 from datetime import datetime
 
 from game import TruthOrDare
