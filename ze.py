@@ -30,6 +30,7 @@ class ZeClient(object):
         self.signals.registerListener("disconnected", self.on_disconnected)
         self.signals.registerListener("message_received", self.on_message_received)
         self.signals.registerListener("group_messageReceived", self.on_group_message_received)
+        self.signals.registerListener("group_subjectReceived", self.on_group_subject_received)
 
         self.groups = {}
 
@@ -62,16 +63,18 @@ class ZeClient(object):
             self.methods.call("message_ack", (jid, message_id))
 
     def on_group_message_received(self, message_id, group_jid, author, message, timestamp, wants_receipt, push_name):
-        if group_jid not in self.groups:
-            send_msg = lambda jid, msg: self.methods.call('message_send', (jid, msg))
-            game_group = TruthOrDare(group_jid, send_msg)
-            self.groups[group_jid] = game_group
         if message.startswith('!'):
             command = self.groups[group_jid].commands.get(message)
             if command:
                 command(push_name=push_name)
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (group_jid, message_id))
+
+    def on_group_subject_received(self, msgId, fromAttribute, author, newSubject, attribute_t, receiptRequested):
+        if fromAttribute not in self.groups:
+            send_msg = lambda jid, msg: self.methods.call('message_send', (jid, msg))
+            game_group = TruthOrDare(fromAttribute, send_msg)
+            self.groups[fromAttribute] = game_group
 
 
 if __name__ == '__main__':
