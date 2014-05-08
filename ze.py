@@ -8,14 +8,10 @@ import base64
 import random
 from datetime import datetime
 
+from game import TruthOrDare
 
 JID_BASE = "%s@s.whatsapp.net"
 
-CHALLENGES = [
-    'Tire uma selfie e envie agora no grupo, não vale se arrumar!',
-    'Envie um vídeo de 10 segundos cantando uma música escolhida pelo grupo!',
-    'Compartilhe aqui a última conversa com alguém do grupo, a sua escolha!(Print Screen)',
-]
 
 class ZeClient(object):
 
@@ -36,7 +32,7 @@ class ZeClient(object):
         self.signals.registerListener("message_received", self.on_message_received)
         self.signals.registerListener("group_messageReceived", self.on_group_message_received)
 
-        self.players = {}
+        self.groups = {}
 
         self.done = False
 
@@ -67,44 +63,12 @@ class ZeClient(object):
             self.methods.call("message_ack", (jid, message_id))
 
     def on_group_message_received(self, message_id, group_jid, author, message, timestamp, wants_receipt, push_name):
-        if '!rodar' == message:
-            self.methods.call("message_send", (group_jid, 'rodando a chinela...'))
-            try:
-                ask, answer = random.sample(self.players[group_jid], 2)
-            except:
-                self.methods.call("message_send", (group_jid, "Vamos jogar galera! Digite !jogar"))
-            else:
-                msg = "%s -> %s" % (ask, answer)
-                self.methods.call("message_send", (group_jid, msg))
-        elif '!jogar' == message:
-            if group_jid not in self.players:
-                self.players[group_jid] = []
-            if push_name not in self.players[group_jid]:
-                self.players[group_jid].append(push_name)
-                self.methods.call("message_send", (group_jid, ('%s entrou no jogo...' % push_name)))
-            else:
-                self.methods.call("message_send", (group_jid, ('%s já está jogando!' % push_name)))
-        elif '!sair' == message:
-            if group_jid not in self.players or not self.players[group_jid]:
-                self.methods.call("message_send", (group_jid, 'Ninguém está jogando.'))
-            else:
-                if push_name in self.players[group_jid]:
-                    self.players[group_jid].remove(push_name)
-                    self.methods.call("message_send", (group_jid, '%s saiu do jogo.' % push_name))
-                else:
-                    self.methods.call("message_send", (group_jid, '%s não está no jogo.' % push_name))
-        elif '!lancar' == message:
-            msg = "Mentira"
-            if random.randrange(100) > 55:
-                msg = "Verdade"
-            self.methods.call("message_send", (group_jid, msg))
-        elif '!listar' == message:
-            if group_jid in self.players and self.players[group_jid]:
-                self.methods.call("message_send", (group_jid, ('No jogo agora: %s' % ','.join(self.players[group_jid]))))
-            else:
-                self.methods.call("message_send", (group_jid, 'Ninguém está jogando.'))
-        elif '!desafio' == message:
-            self.methods.call("message_send", (group_jid, random.choice(CHALLENGES)))
+        if group_jid not in self.groups:
+            send_msg = lambda jid, msg: self.methods.call('message_send', (jid, msg))
+            game_group = TruthOrDare(group_jid, send_msg)
+            self.groups[group_jid] = game_group
+        if message.startswith('!'):
+            self.groups[group_jid].commands[message](push_name=push_name)
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (group_jid, message_id))
 
