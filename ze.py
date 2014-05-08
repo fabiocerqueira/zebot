@@ -70,11 +70,11 @@ class ZeClient(object):
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (group_jid, message_id))
 
-    def on_group_subject_received(self, msgId, fromAttribute, author, newSubject, attribute_t, receiptRequested):
-        if fromAttribute not in self.groups:
+    def on_group_subject_received(self, message_id, group_jid, author, message_body, timestamp, receiptRequested):
+        if group_jid not in self.groups:
             send_msg = lambda jid, msg: self.methods.call('message_send', (jid, msg))
-            game_group = TruthOrDare(fromAttribute, send_msg)
-            self.groups[fromAttribute] = game_group
+            game_group = TruthOrDare(group_jid, send_msg)
+            self.groups[group_jid] = game_group
 
 
 if __name__ == '__main__':
