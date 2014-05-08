@@ -6,7 +6,13 @@ CHALLENGES = [
     'Envie um vídeo de 10 segundos cantando uma música escolhida pelo grupo!',
     'Compartilhe aqui a última conversa com alguém do grupo, a sua escolha!(Print Screen)',
 ]
-
+HELP_TEXT = """!jogar -> Para entrar no jogo
+!sair -> Para sair do jogo
+!rodar -> Quem pergunta para quem?
+!listar -> Para listar os jogadores
+!lancar -> A resposta é verdade ou mentira?
+!desafio -> Para escolher um desafio
+!ajuda -> Para informação de ajuda"""
 
 class TruthOrDare(object):
 
@@ -21,7 +27,7 @@ class TruthOrDare(object):
             '!listar': self.list_players,
             '!lancar': self.throw,
             '!desafio': self.challenge,
-            '!ajuda': self.help,
+            '!ajuda': self.game_help,
         }
 
     def play(self, **kwargs):
@@ -66,13 +72,5 @@ class TruthOrDare(object):
     def challenge(self, **kwargs):
         self.send_msg(self.group_jid, random.choice(CHALLENGES))
 
-    def help(self, **kwargs):
-        msg = """!jogar -> Para entrar no jogo
-!sair -> Para sair do jogo
-!rodar -> Quem pergunta para quem?
-!listar -> Para listar os jogadores
-!lancar -> A resposta é verdade ou mentira?
-!desafio -> Para escolher um desafio
-!ajuda -> Para informação de ajuda
-                """
-        self.send_msg(self.group_jid, msg)
+    def game_help(self, **kwargs):
+        self.send_msg(self.group_jid, HELP_TEXT)
