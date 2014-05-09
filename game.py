@@ -1,11 +1,9 @@
 #-*- coding: utf-8 -*-
+import os
 import random
 
-CHALLENGES = [
-    'Tire uma selfie e envie agora no grupo, não vale se arrumar!',
-    'Envie um vídeo de 10 segundos cantando uma música escolhida pelo grupo!',
-    'Compartilhe aqui a última conversa com alguém do grupo, a sua escolha!(Print Screen)',
-]
+BASE_DIR = os.path.dirname(__file__)
+
 HELP_TEXT = """!jogar -> Para entrar no jogo
 !sair -> Para sair do jogo
 !rodar -> Quem pergunta para quem?
@@ -70,7 +68,8 @@ class TruthOrDare(object):
         self.send_msg(self.group_jid, msg)
 
     def challenge(self, **kwargs):
-        self.send_msg(self.group_jid, random.choice(CHALLENGES))
+        challenges = open(os.path.join(BASE_DIR, 'challenges.txt')).readlines()
+        self.send_msg(self.group_jid, random.choice(challenges))
 
     def game_help(self, **kwargs):
         self.send_msg(self.group_jid, HELP_TEXT)

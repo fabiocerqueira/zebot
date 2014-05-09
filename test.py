@@ -1,7 +1,8 @@
 #-*- coding: utf-8 -*-
 import unittest
+import os
 
-from game import TruthOrDare, CHALLENGES, HELP_TEXT
+from game import TruthOrDare, BASE_DIR, HELP_TEXT
 
 MESSAGE = ('', '')
 
@@ -83,7 +84,7 @@ class TruthOrDareTestCase(unittest.TestCase):
         self.game.challenge()
         jid, msg = MESSAGE
         self.assertEquals(jid, 'group')
-        self.assertTrue(msg in CHALLENGES)
+        self.assertTrue(msg in open(os.path.join(BASE_DIR, 'challenges.txt')).readlines())
 
     def test_help(self):
         self.game.game_help()
