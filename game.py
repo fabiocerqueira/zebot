@@ -73,3 +73,14 @@ class TruthOrDare(object):
 
     def game_help(self, **kwargs):
         self.send_msg(self.group_jid, HELP_TEXT)
+
+class ChallengesOp(object):
+    @staticmethod
+    def add_challenge(new_challenge):
+        try:
+            challenges = open(os.path.join(BASE_DIR, 'challenges.txt'), 'a+')
+            challenges.write(new_challenge + '\n')
+        except:
+            return False
+        else:
+            return True

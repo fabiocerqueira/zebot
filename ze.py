@@ -7,7 +7,7 @@ import time
 import base64
 from datetime import datetime
 
-from game import TruthOrDare
+from game import TruthOrDare, ChallengesOp
 
 JID_BASE = "%s@s.whatsapp.net"
 
@@ -58,6 +58,19 @@ class ZeClient(object):
             return
         timestamp = datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
         print("%s [%s]:%s" % (jid, timestamp, message))
+        if message.startswith('!'):
+            challenge = message[message.find(' ')+1:]
+            operation = message[1:message.find(' ')]
+
+            if operation == "add":
+                resp_message = "Problema ao registrar o desafio!"
+                if ChallengesOp.add_challenge(challenge):
+                    resp_message = "Desafio registrado com sucesso!"
+                self.methods.call("message_send", (jid, resp_message))
+
+            if self.admin_jid != jid:
+                return
+
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (jid, message_id))
 
