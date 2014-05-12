@@ -4,14 +4,22 @@ import random
 
 BASE_DIR = os.path.dirname(__file__)
 
-HELP_TEXT = """!jogar -> Para entrar no jogo
+HELP_TEXT = """Comandos usados no grupo:
+
+!jogar -> Para entrar no jogo
 !sair -> Para sair do jogo
 !tirar -> Para remover alguém do jogo: !tirar celular
 !rodar -> Quem pergunta para quem?
 !listar -> Para listar os jogadores
 !lancar -> A resposta é verdade ou mentira?
 !desafio -> Para escolher um desafio
-!ajuda -> Para informação de ajuda"""
+
+Comandos usados no privado:
+
+!add -> Adiciona um novo desafio: !add Cantar Forentina!
+
+Para ver esse manual digite: !ajuda
+"""
 
 class TruthOrDare(object):
 
@@ -103,14 +111,16 @@ class TruthOrDare(object):
             self.send_msg(self.group_jid, err_msg)
 
     def game_help(self, **kwargs):
-        self.send_msg(self.group_jid, HELP_TEXT)
+        author = kwargs['author']
+        self.send_msg(author, HELP_TEXT)
 
     # Admin methods
     @classmethod
-    def admin_command(cls, operation, params, send_msg_callback, **kwargs):
+    def private_command(cls, operation, params, send_msg_callback, **kwargs):
         cls.send_msg = staticmethod(send_msg_callback)
         commands = {
             '!add': cls.add_challenge,
+            '!ajuda':cls.send_msg(HELP_TEXT),
         }
         cmd = commands.get(operation)
         if cmd:

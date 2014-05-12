@@ -63,15 +63,13 @@ class ZeClient(object):
         return send_msg
 
     def on_message_received(self, message_id, jid, message, timestamp, wants_receipt, push_name, is_broadcast):
-        if self.admin_jid != jid:
-            return
         if message.startswith('!'):
             try:
                 operation, params = message.split(' ', 1)
             except ValueError:
                 operation, params = message, None
             send_msg = self.get_send_msg(jid)
-            TruthOrDare.admin_command(operation, params, send_msg)
+            TruthOrDare.private_command(operation, params, send_msg)
         # reply ack
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (jid, message_id))

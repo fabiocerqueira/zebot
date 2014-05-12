@@ -116,9 +116,9 @@ class TruthOrDareTestCase(unittest.TestCase):
         self.assertEquals(msg, "Não há desafios cadastrados!")
 
     def test_help(self):
-        self.game.game_help()
+        self.game.game_help(author="8588881111@s.whatsapp.net")
         jid, msg = MESSAGE
-        self.assertEquals(jid, 'group')
+        self.assertEquals(jid, '8588881111@s.whatsapp.net')
         self.assertEquals(msg, HELP_TEXT)
 
     def tearDown(self):
