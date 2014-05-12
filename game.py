@@ -68,8 +68,17 @@ class TruthOrDare(object):
         self.send_msg(self.group_jid, msg)
 
     def challenge(self, **kwargs):
-        challenges = open(os.path.join(BASE_DIR, 'challenges.txt')).readlines()
-        self.send_msg(self.group_jid, random.choice(challenges))
+        err_msg = "Não há desafios cadastrados!"
+        challenges = []
+        try:
+            challenges = open(os.path.join(BASE_DIR, 'challenges.txt')).readlines()
+        except IOError:
+            self.send_msg(self.group_jid, err_msg)
+            return
+        if challenges:
+            self.send_msg(self.group_jid, random.choice(challenges))
+        else:
+            self.send_msg(self.group_jid, err_msg)
 
     def game_help(self, **kwargs):
         self.send_msg(self.group_jid, HELP_TEXT)

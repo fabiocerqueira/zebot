@@ -81,10 +81,29 @@ class TruthOrDareTestCase(unittest.TestCase):
         self.assertTrue(msg in ['Mentira', 'Verdade'])
 
     def test_challenge(self):
+        with open(os.path.join(BASE_DIR, 'challenges.txt'), 'w') as f:
+            f.write("first challenge\n")
         self.game.challenge()
         jid, msg = MESSAGE
         self.assertEquals(jid, 'group')
-        self.assertTrue(msg in open(os.path.join(BASE_DIR, 'challenges.txt')).readlines())
+        self.assertEquals(msg, "first challenge\n")
+
+    def test_challenge_without_file(self):
+        filename = os.path.join(BASE_DIR, 'challenges.txt')
+        if os.path.exists(filename):
+            os.remove(filename)
+        self.game.challenge()
+        jid, msg = MESSAGE
+        self.assertEquals(jid, 'group')
+        self.assertEquals(msg, "Não há desafios cadastrados!")
+
+    def test_challenge_with_empty_file(self):
+        with open(os.path.join(BASE_DIR, 'challenges.txt'), 'w'):
+            pass
+        self.game.challenge()
+        jid, msg = MESSAGE
+        self.assertEquals(jid, 'group')
+        self.assertEquals(msg, "Não há desafios cadastrados!")
 
     def test_help(self):
         self.game.game_help()
