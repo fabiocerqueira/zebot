@@ -16,7 +16,10 @@ class TruthOrDareTestCase(unittest.TestCase):
         self.game = TruthOrDare('group', send_msg)
 
     def test_play(self):
-        self.game.players = ['player1', 'player2']
+        self.game.players = {
+            '8588881111@s.whatsapp.net': 'player1',
+            '8588882222@s.whatsapp.net': 'player2',
+        }
         self.game.play()
         jid, msg = MESSAGE
         self.assertEquals(jid, 'group')
@@ -31,36 +34,43 @@ class TruthOrDareTestCase(unittest.TestCase):
         self.assertEquals(msg, 'Vamos jogar galera! Digite !jogar')
 
     def test_join(self):
-        self.game.join(push_name='player1')
+        self.game.join(push_name='player1', author='8588881111@s.whatsapp.net')
         jid, msg = MESSAGE
         self.assertEquals(jid, 'group')
         self.assertEquals(msg, 'player1 entrou no jogo...')
-        self.assertTrue('player1' in self.game.players)
+        self.assertEquals(self.game.players['8588881111@s.whatsapp.net'], 'player1')
 
     def test_join_with_player_in_game(self):
-        self.game.players = ['player1']
-        self.game.join(push_name='player1')
+        self.game.players = {
+            '8588881111@s.whatsapp.net': 'player1',
+        }
+        self.game.join(push_name='player1', author='8588881111@s.whatsapp.net')
         jid, msg = MESSAGE
         self.assertEquals(jid, 'group')
         self.assertEquals(msg, 'player1 já está jogando!')
 
     def test_left(self):
-        self.game.players = ['player1']
-        self.game.left(push_name='player1')
+        self.game.players = {
+            '8588881111@s.whatsapp.net': 'player1',
+        }
+        self.game.left(push_name='player1', author='8588881111@s.whatsapp.net')
         jid, msg = MESSAGE
         self.assertEquals(jid, 'group')
         self.assertEquals(msg, 'player1 saiu do jogo.')
         self.assertTrue('player1' not in self.game.players)
 
     def test_left_without_in_the_game(self):
-        self.game.left(push_name='player1')
+        self.game.left(push_name='player1', author='8588881111@s.whatsapp.net')
         jid, msg = MESSAGE
         self.assertEquals(jid, 'group')
         self.assertEquals(msg, 'player1 não está no jogo.')
         self.assertTrue('player1' not in self.game.players)
 
     def test_list(self):
-        self.game.players = ['player1', 'player2']
+        self.game.players = {
+            '8588881111@s.whatsapp.net': 'player1',
+            '8588882222@s.whatsapp.net': 'player2',
+        }
         self.game.list_players()
         jid, msg = MESSAGE
         self.assertEquals(jid, 'group')

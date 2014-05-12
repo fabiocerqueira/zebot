@@ -6,6 +6,7 @@ BASE_DIR = os.path.dirname(__file__)
 
 HELP_TEXT = """!jogar -> Para entrar no jogo
 !sair -> Para sair do jogo
+!tirar -> Para remover alguém do jogo: !tirar celular
 !rodar -> Quem pergunta para quem?
 !listar -> Para listar os jogadores
 !lancar -> A resposta é verdade ou mentira?
@@ -16,12 +17,13 @@ class TruthOrDare(object):
 
     def __init__(self, group_jid, msg_callback):
         self.send_msg = msg_callback
-        self.players = []
+        self.players = {}
         self.group_jid = group_jid
         self.commands = {
             '!rodar': self.play,
             '!jogar': self.join,
             '!sair': self.left,
+            '!tirar': self.kick,
             '!listar': self.list_players,
             '!lancar': self.throw,
             '!desafio': self.challenge,
@@ -30,7 +32,7 @@ class TruthOrDare(object):
 
     def play(self, **kwargs):
         try:
-            ask, answer = random.sample(self.players, 2)
+            ask, answer = random.sample(self.players.values(), 2)
         except ValueError:
             self.send_msg(self.group_jid, 'Vamos jogar galera! Digite !jogar')
         else:
@@ -40,26 +42,46 @@ class TruthOrDare(object):
 
     def join(self, **kwargs):
         push_name = kwargs['push_name']
-        if push_name not in self.players:
-            self.players.append(push_name)
+        author = kwargs['author']
+        if author not in self.players:
+            self.players[author] = push_name
             self.send_msg(self.group_jid, '%s entrou no jogo...' % push_name)
         else:
             self.send_msg(self.group_jid, '%s já está jogando!' % push_name)
 
     def left(self, **kwargs):
         push_name = kwargs['push_name']
-        if push_name not in self.players:
+        author = kwargs['author']
+        if author not in self.players:
             self.send_msg(self.group_jid, '%s não está no jogo.' % push_name)
         else:
-            self.players.remove(push_name)
+            self.players.pop(author)
             self.send_msg(self.group_jid, '%s saiu do jogo.' % push_name)
+
+    def kick(self, **kwargs):
+        push_name = kwargs['push_name']
+        message = kwargs['message']
+        phone = kwargs['params']
+        if not phone:
+            self.send_msg(self.group_jid, 'Use: !tirar celular')
+            return
+        kick_player = None
+        for player in self.players.keys():
+            if phone in player:
+                kick_player = player
+                break
+        if kick_player:
+            kick_name = self.players.pop(kick_player)
+            self.send_msg(self.group_jid, '%s retirou %s do jogo.' % (push_name, kick_name))
+        else:
+            self.send_msg(self.group_jid, '%s não está no jogo.' % phone)
 
     def list_players(self, **kwargs):
         if not self.players:
             self.send_msg(self.group_jid, 'Ninguém está jogando.')
         else:
             self.send_msg(self.group_jid,
-                          'No jogo agora: %s' % ','.join(self.players))
+                          'No jogo agora: %s' % ','.join(self.players.values()))
 
     def throw(self, **kwargs):
         msg = "Mentira"
