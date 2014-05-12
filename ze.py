@@ -7,7 +7,7 @@ import time
 import base64
 from datetime import datetime
 
-from game import TruthOrDare, ChallengesOp
+from game import TruthOrDare
 
 JID_BASE = "%s@s.whatsapp.net"
 
@@ -53,38 +53,42 @@ class ZeClient(object):
     def on_disconnected(self, reason):
         print("Disconnected because %s" % reason)
 
+    def get_send_msg(self, dst_jid=None):
+        if dst_jid:
+            def send_msg(msg):
+                self.methods.call('message_send', (dst_jid, msg))
+        else:
+            def send_msg(jid, msg):
+                self.methods.call('message_send', (jid, msg))
+        return send_msg
+
     def on_message_received(self, message_id, jid, message, timestamp, wants_receipt, push_name, is_broadcast):
         if self.admin_jid != jid:
             return
-        timestamp = datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
-        print("%s [%s]:%s" % (jid, timestamp, message))
         if message.startswith('!'):
-            challenge = message[message.find(' ')+1:]
-            operation = message[1:message.find(' ')]
-
-            if operation == "add":
-                resp_message = "Problema ao registrar o desafio!"
-                if ChallengesOp.add_challenge(challenge):
-                    resp_message = "Desafio registrado com sucesso!"
-                self.methods.call("message_send", (jid, resp_message))
-
-            if self.admin_jid != jid:
-                return
-
+            try:
+                operation, params = message.split(' ', 1)
+            except ValueError:
+                operation, params = message, None
+            send_msg = self.get_send_msg(jid)
+            TruthOrDare.admin_command(operation, params, send_msg)
+        # reply ack
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (jid, message_id))
 
     def on_group_message_received(self, message_id, group_jid, author, message, timestamp, wants_receipt, push_name):
         if group_jid not in self.groups:
-            send_msg = lambda jid, msg: self.methods.call('message_send', (jid, msg))
+            send_msg = self.get_send_msg()
             game_group = TruthOrDare(group_jid, send_msg)
             self.groups[group_jid] = game_group
         if message.startswith('!'):
             command = self.groups[group_jid].commands.get(message)
             if command:
                 command(push_name=push_name)
+        # reply ack
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (group_jid, message_id))
+
 
 
 if __name__ == '__main__':

@@ -74,13 +74,25 @@ class TruthOrDare(object):
     def game_help(self, **kwargs):
         self.send_msg(self.group_jid, HELP_TEXT)
 
-class ChallengesOp(object):
-    @staticmethod
-    def add_challenge(new_challenge):
+    # Admin methods
+    @classmethod
+    def admin_command(cls, operation, params, send_msg_callback, **kwargs):
+        cls.send_msg = staticmethod(send_msg_callback)
+        commands = {
+            '!add': cls.add_challenge,
+        }
+        cmd = commands.get(operation)
+        if cmd:
+            return cmd(params, **kwargs)
+        else:
+            return None
+
+    @classmethod
+    def add_challenge(cls, new_challenge, **kwargs):
         try:
             challenges = open(os.path.join(BASE_DIR, 'challenges.txt'), 'a+')
             challenges.write(new_challenge + '\n')
+            resp_message = "Desafio registrado com sucesso!"
         except:
-            return False
-        else:
-            return True
+            resp_message = "Problema ao registrar o desafio!"
+        cls.send_msg(resp_message)
