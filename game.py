@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 import os
 import random
+import zedb
 
 BASE_DIR = os.path.dirname(__file__)
 
@@ -37,6 +38,8 @@ class TruthOrDare(object):
             '!desafio': self.challenge,
             '!ajuda': self.game_help,
         }
+
+        zedb.OperationsDB.connect()
 
     def play(self, **kwargs):
         try:
@@ -101,7 +104,7 @@ class TruthOrDare(object):
         err_msg = "Não há desafios cadastrados!"
         challenges = []
         try:
-            challenges = open(os.path.join(BASE_DIR, 'challenges.txt')).readlines()
+            challenges = zedb.OperationsDB.get_challanges()
         except IOError:
             self.send_msg(self.group_jid, err_msg)
             return
@@ -130,9 +133,10 @@ class TruthOrDare(object):
 
     @classmethod
     def add_challenge(cls, new_challenge, **kwargs):
+        jid = kwargs['user_jid']
+        print "xX"*30, jid
         try:
-            challenges = open(os.path.join(BASE_DIR, 'challenges.txt'), 'a+')
-            challenges.write(new_challenge + '\n')
+            zedb.OperationsDB.insert(jid, new_challenge)
             resp_message = "Desafio registrado com sucesso!"
         except:
             resp_message = "Problema ao registrar o desafio!"
