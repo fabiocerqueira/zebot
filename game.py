@@ -123,7 +123,6 @@ class TruthOrDare(object):
         cls.send_msg = staticmethod(send_msg_callback)
         commands = {
             '!add': cls.add_challenge,
-            '!ajuda':cls.send_msg(HELP_TEXT),
         }
         cmd = commands.get(operation)
         if cmd:
