@@ -133,7 +133,6 @@ class TruthOrDare(object):
     @classmethod
     def add_challenge(cls, new_challenge, **kwargs):
         jid = kwargs['user_jid']
-        print "xX"*30, jid
         try:
             zedb.OperationsDB.insert(jid, new_challenge)
             resp_message = "Desafio registrado com sucesso!"

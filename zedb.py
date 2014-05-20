@@ -25,7 +25,6 @@ class OperationsDB(object):
             owner = User.objects.get(jid=user_jid)
             Challange(description=challange, user_jid=owner).save()
         else:
-            print "xX"*30 + "Teste"
             pass #TODO: Description duplicated trigger a exception, return a error message?
 
     @staticmethod

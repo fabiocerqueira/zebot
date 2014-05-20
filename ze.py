@@ -5,7 +5,7 @@ from Yowsup.connectionmanager import YowsupConnectionManager
 import os
 import time
 import base64
-from datetime import datetime
+from datetime import datetime, date
 
 from game import TruthOrDare
 
@@ -32,6 +32,7 @@ class ZeClient(object):
         self.signals.registerListener("group_messageReceived", self.on_group_message_received)
 
         self.groups = {}
+        self.creation_time = time.time()
 
         self.done = False
 
@@ -63,8 +64,10 @@ class ZeClient(object):
         return send_msg
 
     def on_message_received(self, message_id, jid, message, timestamp, wants_receipt, push_name, is_broadcast):
-        print "y"*50
         if message.startswith('!'):
+            # Message sent approximately one minute (or more) before? 
+            if (self.creation_time - timestamp) > 60:
+                return
             try:
                 operation, params = message.split(' ', 1)
             except ValueError:
@@ -81,6 +84,9 @@ class ZeClient(object):
             game_group = TruthOrDare(group_jid, send_msg)
             self.groups[group_jid] = game_group
         if message.startswith('!'):
+            # Message sent approximately one minute (or more) before? 
+            if (self.creation_time - timestamp) > 60:
+                return
             try:
                 operation, params = message.split(' ', 1)
             except ValueError:
@@ -91,7 +97,6 @@ class ZeClient(object):
         # reply ack
         if wants_receipt and self.send_receipts:
             self.methods.call("message_ack", (group_jid, message_id))
-
 
 
 if __name__ == '__main__':
