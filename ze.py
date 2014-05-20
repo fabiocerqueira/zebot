@@ -91,6 +91,8 @@ class ZeClient(object):
                 operation, params = message.split(' ', 1)
             except ValueError:
                 operation, params = message, None
+            if (author not in self.groups[group_jid].players) and (operation != '!jogar'):
+                return
             command = self.groups[group_jid].commands.get(operation)
             if command:
                 command(push_name=push_name, author=author, message=message, params=params)
